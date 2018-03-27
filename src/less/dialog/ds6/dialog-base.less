@@ -1,0 +1,201 @@
+// MIXINS
+//-----------------------------
+
+// Element width in percentage - (No of gutters * gutter width / number of elements)px
+.dialog-grid(@cols, @gutter, @min, @max, @default: @min) {
+    width: calc(round(@default / @cols * 100%) ~"-" round((@default - 1) * @gutter / @default));
+    min-width: calc(round(@min / @cols * 100%) ~"-" round((@min - 1) * @gutter / @min));
+    max-width: calc(round(@max / @cols * 100%) ~"-" round((@max - 1) * @gutter / @max));
+}
+
+// BLOCK
+//-----------------------------
+
+.dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+// ELEMENTS
+//-----------------------------
+
+.dialog__window {
+    position: absolute;
+    margin: auto;
+    top: 15%;
+    left: 0;
+    right: 0;
+    margin-bottom: 15vh;
+    background-color: @ds6-color-g201-gray;
+    will-change: opacity, transform;
+    .dialog-grid(@cols: 16, @gutter: 16px, @min: 8, @max: 14);
+}
+
+.dialog__mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.7;
+    background-color: @ds6-color-text-default;
+    will-change: opacity;
+}
+
+.dialog__body {
+    padding: 16px;
+    width: 100%;
+    min-height: 100%;
+    box-sizing: border-box;
+
+    & :first-child {
+        margin-top: 0;
+        padding-top: 0;
+    }
+
+    & :last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+}
+
+.dialog__close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 16px;
+    border: 0;
+    cursor: pointer;
+    color: @ds6-color-text-default;
+    background: @ds6-color-g201-gray;
+
+    &:hover,
+    &:focus {
+        color: @ds6-color-link-default;
+    }
+}
+
+// MODIFIERS
+//-----------------------------
+
+.dialog__window--full,
+.dialog__window--left,
+.dialog__window--right {
+    top: 0;
+    height: 100%;
+    margin-bottom: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    .dialog__close {
+        position: -webkit-sticky;
+        position: sticky;
+        float: right;
+    }
+}
+
+.dialog__window--fill {
+    min-height: 70%;
+}
+
+.dialog__window--full {
+    max-width: 100%;
+    width: 100%;
+    bottom: 0;
+}
+
+.dialog__window--left {
+    right: auto;
+    border-right: 1px solid rgba(153, 153, 153, 0.18);
+}
+
+.dialog__window--right {
+    left: auto;
+    border-left: 1px solid rgba(153, 153, 153, 0.18);
+}
+
+// TRANSITIONS
+//-----------------------------
+
+// Prime transitions.
+.dialog-show:not([hidden]),
+.dialog-hide[hidden] {
+    .dialog__window--fade,
+    .dialog__mask--fade {
+        transition: opacity 0.16s ease-out;
+    }
+
+    .dialog__window--slide {
+        transition: transform 0.32s ease-out;
+    }
+
+    .dialog__mask--fade-slow {
+        transition: opacity 0.32s ease-out;
+    }
+}
+
+// Apply hide animation.
+.dialog-hide,
+.dialog-show--from {
+    display: block !important;
+
+    .dialog__window--fade,
+    .dialog__mask--fade,
+    .dialog__mask--fade-slow {
+        opacity: 0;
+    }
+
+    .dialog__window--slide {
+        &.dialog__window--left {
+            transform: translateX(-100%);
+        }
+
+        &.dialog__window--right {
+            transform: translateX(100%);
+        }
+    }
+}
+
+// Apply show animation.
+.dialog-show,
+.dialog-hide--from {
+    display: block !important;
+
+    .dialog__window--fade {
+        opacity: 1;
+    }
+
+    .dialog__window--slide {
+        transform: translateX(0);
+    }
+
+    .dialog__mask--fade,
+    .dialog__mask--fade-slow {
+        opacity: 0.7;
+    }
+}
+
+// MEDIA QUERIES
+//-----------------------------
+
+@media(max-width: 600px) {
+    .dialog__window:not(.dialog__window--full) {
+        .dialog-grid(@cols: 8, @gutter: 8px, @min: 6, @max: 8, @default: 7);
+
+        .dialog__window--left,
+        .dialog__window--right {
+            .dialog-grid(@cols: 8, @gutter: 8px, @min: 7, @max: 8, @default: 7);
+        }
+    }
+}
+
+// POLYFILL THE HIDDEN ATTRIBUTE
+[hidden] {
+    display: none;
+}
